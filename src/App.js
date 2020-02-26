@@ -7,7 +7,7 @@ import './App.css';
 import Sound from 'react-sound';
 import Button from './Button';
 
-const apiToken = 'BQDFDtMglEcDl2bUx3roEJh4Tg1syDAur17nndc1S5iCuPmXc5tMYkt3MlVHg8KYnMpjBywemr2I8yAIqaJINks_zkmaUsifEnnb52N7bfHgNikmVUkhYs1srBfEjafXAaKzPg30cN_cBvyPhToV0JgYm3M-NQMAIt-8i9eatrih';
+const apiToken = 'BQA7yaIk9zNpOggVL8y10qtdlCpCzYKytJs_hiFtwq9CT3ilz7dsremaiyLa7bS2AXZVNKTOJmHa3NYB1hfxVjbR86OKqY4QnD1gQU_pUG59WMgoJiBad9HEfZ39zi--4wfeIUN3z6uKMn6NSHgYany_mDgzRtb1_fYKeO1Bb6ED';
 
 function shuffleArray(array) {
   let counter = array.length;
@@ -19,13 +19,21 @@ function shuffleArray(array) {
     array[counter] = array[index];
     array[index] = temp;
   }
-
+  console.log(array)
   return array;
 }
 
 /* Return a random number between 0 included and x excluded */
 function getRandomNumber(x) {
   return Math.floor(Math.random() * x);
+}
+
+class AlbumCover extends Component {
+  render() {
+    const track = this.props.track;
+    const src = track.album.images[0].url;
+    return (<img src={src} style={{ width: 400, height: 400 }} />);
+  }
 }
 
 class App extends Component {
@@ -35,7 +43,9 @@ class App extends Component {
     this.state = {
       text: "",
       data: [],
-      songsLoaded: false
+      songsLoaded: false,
+      currentTrack: null,
+      tableau: []
     };
   }
 
@@ -52,11 +62,33 @@ class App extends Component {
         console.log("Réponse reçue ! Voilà les musiques reçues : ", data);
         this.setState({ data: data.items });
         console.log(this.state.data);
+        this.setState({ text: "J'ai reçu " + this.state.data.length + " musiques." });
+        this.getNewSongs();
         this.setState({ songsLoaded: true });
-        this.setState({ text: "J'ai reçu " + this.state.data.length + " musiques. La première est " + this.state.data[0].track.name +"." })
+        console.log(this.state.tableau)
       })
       
     ;
+  }
+
+  getNewSongs() {
+    const length = this.state.data.length;
+    const i1 = getRandomNumber(length);
+    const i2 = getRandomNumber(length);
+    const i3 = getRandomNumber(length);
+    this.setState({ currentTrack: this.state.data[i1].track });
+    this.setState({ tableau: shuffleArray([this.state.data[i1].track, this.state.data[i2].track, this.state.data[i3].track]) });
+  }
+
+  checkAnswer(id) {
+    if (this.state.currentTrack == id) {
+      this.getNewSongs();
+      return (
+        swal('Bravo', 'TU as gagné !', 'success')
+      )
+    } else {
+      swal('Alerte !!', 'Mauvaise réponse', 'error')
+    }
   }
 
   render() {
@@ -73,8 +105,13 @@ class App extends Component {
           </header>
           <div className="App-images">
             <p>{this.state.text}</p>
+            <AlbumCover track={this.state.currentTrack} />
+            <Sound url={this.state.currentTrack.preview_url} playStatus={Sound.status.PLAYING} />
           </div>
           <div className="App-buttons">
+            {this.state.tableau.map(item => (
+              <Button onClick={() => this.checkAnswer(item)}>{item.name}</Button>
+            ))}
           </div>
         </div>
       )
