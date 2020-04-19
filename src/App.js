@@ -7,7 +7,7 @@ import './App.css';
 import Sound from 'react-sound';
 import Button from './Button';
 
-const apiToken = 'BQA7yaIk9zNpOggVL8y10qtdlCpCzYKytJs_hiFtwq9CT3ilz7dsremaiyLa7bS2AXZVNKTOJmHa3NYB1hfxVjbR86OKqY4QnD1gQU_pUG59WMgoJiBad9HEfZ39zi--4wfeIUN3z6uKMn6NSHgYany_mDgzRtb1_fYKeO1Bb6ED';
+const apiToken = 'BQBA_coEdlFFmUQKG4hy8jKYHX3AZcucWxOcAQKum5_G3lO7X7MqP6NEo9MLBQXiLg89lKQtMsOF-Ey8UnBKkdcSxUmlIbko46Ry0tDOtEK-z9iqtEbUvVKircCMet-cgW_iwnhGV3Q-FERa3jinlHWbtKpofXcPQfbc6b4mONAC';
 
 function shuffleArray(array) {
   let counter = array.length;
@@ -45,7 +45,8 @@ class App extends Component {
       data: [],
       songsLoaded: false,
       currentTrack: null,
-      tableau: []
+      tableau: [],
+      timeout: null
     };
   }
 
@@ -65,9 +66,9 @@ class App extends Component {
         this.setState({ text: "J'ai reçu " + this.state.data.length + " musiques." });
         this.getNewSongs();
         this.setState({ songsLoaded: true });
-        console.log(this.state.tableau)
+        console.log(this.state.tableau);
+        const timeout = setTimeout(this.componentDidMount, 3000);
       })
-      
     ;
   }
 
@@ -82,9 +83,12 @@ class App extends Component {
 
   checkAnswer(id) {
     if (this.state.currentTrack == id) {
-      this.getNewSongs();
       return (
-        swal('Bravo', 'TU as gagné !', 'success')
+        swal('Bravo', 'Tu as gagné !', 'success')
+          .then(() => {
+            this.getNewSongs();
+            // clearTimeout(this.state.timeout)
+          })
       )
     } else {
       swal('Alerte !!', 'Mauvaise réponse', 'error')
